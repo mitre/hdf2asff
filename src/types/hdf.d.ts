@@ -35,7 +35,7 @@ export interface Control {
     impact:          number;
     fix:             string;
     refs:            any[];
-    tags:            Tags;
+    tags:            {[key: string]: unknown};
     code:            string;
     source_location: SourceLocation;
     results:         Result[];
@@ -72,31 +72,6 @@ export enum Status {
 export interface SourceLocation {
     line: number;
     ref:  string;
-}
-
-export interface Tags {
-    gtitle:            string;
-    satisfies?:        string[];
-    gid:               string;
-    rid:               string;
-    stig_id:           string;
-    cci:               string[];
-    documentable?:     boolean;
-    nist:              string[];
-    subsystems?:       string[];
-    fix_id?:           string;
-    subsystem?:        string[];
-    severity?:         string;
-    dangerous?:        Dangerous;
-    filesystem_heavy?: boolean;
-    networking?:       null;
-    kernel?:           null;
-    pki?:              null;
-    MFA?:              null;
-    pam?:              null;
-    pkcs11?:           null;
-    nss?:              null;
-    wifi?:             null;
 }
 
 export interface Dangerous {
