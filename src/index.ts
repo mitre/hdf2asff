@@ -69,7 +69,7 @@ hdf.profiles.forEach((profile) => {
             },
             Remediation: {
                 Recommendation: {
-                    Text: _.truncate((control.descriptions.find((description) => description.label === 'fix') || {data: control.fix || 'Fix not available'}).data, {length: 512})
+                    Text: _.truncate((control.descriptions?.find((description) => description.label === 'fix') || {data: control.fix || 'Fix not available'}).data, {length: 512})
                 }
             },
             ProductFields: {
@@ -111,9 +111,9 @@ hdf.profiles.forEach((profile) => {
                 } else if (tag === 'cci' && Array.isArray(control.tags.cci)) {
                     asffControl.FindingProviderFields?.Types.push(`DISA/CCI/${control.tags.cci.join(', ')}`)
                 } else if (typeof control.tags[tag] === 'string') {
-                    asffControl.FindingProviderFields?.Types.push(`OTHER/${tag.replace(/\W/g, '')}/${(control.tags[tag] as string).replace(/\W/g, '')}`)
+                    asffControl.FindingProviderFields?.Types.push(`Other/${tag.replace(/\W/g, '')}/${(control.tags[tag] as string).replace(/\W/g, '')}`)
                 } else if (typeof control.tags[tag] === 'object' && Array.isArray(control.tags[tag])) {
-                    asffControl.FindingProviderFields?.Types.push(`OTHER/${tag.replace(/\W/g, '')}/${(control.tags[tag] as Array<string>).join(', ').replace(/\W/g, '')}`)
+                    asffControl.FindingProviderFields?.Types.push(`Other/${tag.replace(/\W/g, '')}/${(control.tags[tag] as Array<string>).join(', ').replace(/\W/g, '')}`)
                 }
             }
         }

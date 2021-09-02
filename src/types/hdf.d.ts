@@ -31,7 +31,7 @@ export interface Control {
     id:              string;
     title:           string;
     desc:            string;
-    descriptions:    Description[];
+    descriptions?:    Description[];
     impact:          number;
     fix:             string;
     refs:            any[];
