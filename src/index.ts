@@ -86,9 +86,9 @@ hdf.profiles.forEach((profile) => {
                     "Provider Name": "AWS Systems Manager Compliance"
                 },
                 Note: {
-                    Text: _.truncate(cleanText(segment.code_desc), {length: 512}),
+                    Text: _.truncate(cleanText("Test Description: " + segment.code_desc + " --- Test Result: " + segment.message), {length: 512}),
                     UpdatedAt: new Date().toISOString(),
-                    UpdatedBy: 'Description',
+                    UpdatedBy: 'Code Description',
                 },
                 Severity: {
                     Product: 1,
@@ -103,6 +103,7 @@ hdf.profiles.forEach((profile) => {
                     }
                 ],
                 Compliance: {
+                    RelatedRequirements: ['See notes for test results'],
                     Status: controlStatus ? 'PASSED' : 'FAILED',
                     StatusReasons: [
                         {
@@ -115,13 +116,13 @@ hdf.profiles.forEach((profile) => {
             for (const tag in control.tags) {
                 if(control.tags[tag]) {
                     if(tag === 'nist' && Array.isArray(control.tags.nist)) {
-                        asffControl.FindingProviderFields?.Types.push(`NIST/800-53/${control.tags.nist.join(', ')}`)
+                        asffControl.FindingProviderFields?.Types.push(`Tags/nist/${control.tags.nist.join(', ')}`)
                     } else if (tag === 'cci' && Array.isArray(control.tags.cci)) {
-                        asffControl.FindingProviderFields?.Types.push(`DISA/CCI/${control.tags.cci.join(', ')}`)
+                        asffControl.FindingProviderFields?.Types.push(`Tags/cci/${control.tags.cci.join(', ')}`)
                     } else if (typeof control.tags[tag] === 'string') {
-                        asffControl.FindingProviderFields?.Types.push(`Other/${tag.replace(/\W/g, '')}/${(control.tags[tag] as string).replace(/\W/g, '')}`)
+                        asffControl.FindingProviderFields?.Types.push(`Tags/${tag.replace(/\W/g, '')}/${(control.tags[tag] as string).replace(/\W/g, '')}`)
                     } else if (typeof control.tags[tag] === 'object' && Array.isArray(control.tags[tag])) {
-                        asffControl.FindingProviderFields?.Types.push(`Other/${tag.replace(/\W/g, '')}/${(control.tags[tag] as Array<string>).join(', ').replace(/\W/g, '')}`)
+                        asffControl.FindingProviderFields?.Types.push(`Tags/${tag.replace(/\W/g, '')}/${(control.tags[tag] as Array<string>).join(', ').replace(/\W/g, '')}`)
                     }
                 }
             }

@@ -46,7 +46,8 @@ export interface Severity {
 
 export interface Compliance {
   Status: string;
-  StatusReasons: StatusReason[];
+  RelatedRequirements?: string[];
+  StatusReasons?: StatusReason[];
 }
 
 export interface StatusReason {
