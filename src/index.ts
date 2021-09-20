@@ -215,5 +215,5 @@ try {
         })
     }
   } catch (err) {
-    console.error(err)
+    logger.error(`Failed to upload controls: ${err}`)
 }
