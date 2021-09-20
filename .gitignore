@@ -104,3 +104,4 @@ dist
 .tern-port
 samples/
 .DS_Store
+output/*.p*

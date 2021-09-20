@@ -42,14 +42,8 @@ export interface Control {
 }
 
 export interface Description {
-    label: Label;
+    label: string;
     data:  string;
-}
-
-export enum Label {
-    Check = "check",
-    Default = "default",
-    Fix = "fix",
 }
 
 export interface Result {

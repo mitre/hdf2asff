@@ -7,13 +7,16 @@
   "author": "Camden Moors <66680985+camdenmoors@users.noreply.github.com>",
   "license": "MIT",
   "dependencies": {
+    "@aws-sdk/client-securityhub": "^3.31.0",
     "@types/lodash": "^4.14.172",
     "@types/node": "^16.7.10",
     "@types/uuid": "^8.3.1",
+    "@types/winston": "^2.4.4",
     "commander": "^8.1.0",
     "lodash": "^4.17.21",
     "typescript": "^4.4.2",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "winston": "^3.3.3"
   },
   "scripts": {
     "build": "tsc --resolveJsonModule src/index.ts",
