@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import * as fs from 'fs';
-import { Control, HDF } from './types/hdf';
+import { Control, HDF, Result } from './types/hdf';
 import _ from 'lodash';
 import {createHash} from 'crypto'
 import { SecurityHubClient, BatchImportFindingsCommand, AwsSecurityFinding } from "@aws-sdk/client-securityhub";
@@ -95,7 +95,14 @@ function createCode(control: Control & {profileName?: string}) {
     return `=========================================================\n# Profile name: ${control.profileName}\n=========================================================\n\n${control.code}`
 }
 
-function createNote(control: Control) {
+function createNote(segment: Result) {
+    if(segment.message) {
+        return `Test Description: ${segment.code_desc} --- Test Result: ${segment.message}`
+    } else if (segment.skip_message) {
+        return `Test Description: ${segment.code_desc} --- Skip Message: ${segment.skip_message}`
+    } else {
+        return `Test Description: ${segment.code_desc}`
+    }
     
 }
 
@@ -140,7 +147,7 @@ hdf.profiles.forEach((profile) => {
                     "Check": _.truncate(checktext, {length: 2048})
                 },
                 Note: {
-                    Text: _.truncate(cleanText("Test Description: " + segment.code_desc + " --- Test Result: " + segment.message), {length: 512}),
+                    Text: _.truncate(cleanText(createNote(segment)), {length: 512}),
                     UpdatedAt: new Date().toISOString(),
                     UpdatedBy: 'Test Results',
                 },
