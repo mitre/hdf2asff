@@ -19,7 +19,7 @@
     "winston": "^3.3.3"
   },
   "scripts": {
-    "build": "tsc --resolveJsonModule src/index.ts",
+    "build": "tsc --esModuleInterop src/index.ts",
     "start": "node src/index.js"
   }
 }
