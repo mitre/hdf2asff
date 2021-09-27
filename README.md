@@ -1,12 +1,36 @@
-# hdf2asff
-Tool for converting Heimdall Data Format -> Amazon Security Findings Format.
+# hdf2ASFF
+This tool converts and uploads Heimdall Data Format (HDF) into Amazon Security Findings Format (ASFF).
 
+----
 
-## How to install:
+## How to Install:
+
+**Windows/Linux/MacOS:**
+
 1. Clone the repository: `git clone https://github.com/mitre/hdf2asff`
 2. Install dependencies: `yarn install`
 3. Build the app: `yarn run build`
 
-## How to use:
-1. Run the script: `yarn run start -i <path/to/input/file> -o <path/to/output/file(s)>`
-2. Converted spreadsheets will show up in `output/`
+**Windows:**
+
+1. Download and extract the most recent version from [here](https://github.com/mitre/ckl2POAM/archive/refs/heads/main.zip).
+2. Lower your PowerShell Execution Policy with `Set-Executionpolicy Unrestricted` (Press Win+X and choose Open PowerShell)
+3. Open `setup.ps1` 
+4. Follow the on-screen steps to install NodeJS and build the app
+5. Restore PowerShell Execution policy with `Set-Executionpolicy Default`
+
+---
+
+## How to Use:
+
+1. Open CMD/Powershell/Terminal and enter the directory of hdf2ASFF
+   - Windows Shortcut: Shift + Right Click inside folder
+   - Mac Shortcut: Right-Click hdf2ASFF folder from parent directory -> Services -> New Terminal at Folder
+2. Start the program with `yarn start`. Some examples:
+   - To convert and upload controls using credentials setup in the AWS CLI:
+   
+     - `yarn start --input <path/to/input.json> --aws-account-id <AWS Account ID> --region <Security Hub Region> --target <Target Name> --upload`
+   - To convert and upload controls using specific credentials:
+   
+     - `yarn start --input <path/to/input.json> --aws-account-id <AWS Account ID> --access-key <AWS IAM Access Key> --access-key-secret <AWS IAM Access Key Secret> --region <Security Hub Region> --target <Target Name> --upload`
+
