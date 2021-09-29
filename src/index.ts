@@ -250,7 +250,7 @@ try {
     }
     if (options.output) {
         sliceIntoChunks(findings, 20).forEach(async (chunk, index) => {
-            fs.writeFileSync(`${options.output}.p${index}`, JSON.stringify(chunk))
+            fs.writeFileSync(`${options.output}.p${index}.json`, JSON.stringify(chunk))
         })
     }
     if (!options.upload && !options.output){
