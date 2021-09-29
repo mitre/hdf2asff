@@ -16,8 +16,9 @@ This tool converts and uploads Heimdall Data Format (HDF) into Amazon Security F
 **Windows:**
 
 1. Download and extract the most recent version from [here](https://github.com/mitre/ckl2POAM/archive/refs/heads/main.zip).
-2. Lower your PowerShell Execution Policy with `Set-Executionpolicy Unrestricted` (Press Win+X and choose Open PowerShell)
+2. Lower your PowerShell Execution Policy with `Set-Executionpolicy Unrestricted` (Press Win+X and choose Open PowerShell as Administrator)
 3. Open `setup.ps1` 
+   - If you encounter an error running this script try running `Unblock-File -Path C:\path\to\setup.ps1` in PowerShell
 4. Follow the on-screen steps to install NodeJS and build the app
 5. Restore PowerShell Execution policy with `Set-Executionpolicy Default`
 
