@@ -85,7 +85,8 @@ hdf.profiles.forEach((profile) => {
             // Checktext can either be a description or a tag
             const checktext: string = layersOfControl[0].descriptions?.find((description) => description.label === 'check')?.data || layersOfControl[0].tags['check'] as string || 'Check not available'
             // Gets the name of the file inputed
-            const filename = options.input.split('/')[options.input.split('/').length - 1]
+            const slashSplit  = options.input.split('\\')[options.input.split('\\').length - 1]
+            const filename = slashSplit.split('/')[slashSplit.split('/').length - 1]
             const caveat = layersOfControl[0].descriptions?.find((description) => description.label === 'caveat')?.data
             const asffControl: AwsSecurityFinding = {
                 SchemaVersion: "2018-10-08",
