@@ -1,10 +1,25 @@
 import { Command } from 'commander';
-import * as fs from 'fs';
-import { Control, HDF, Result } from './types/hdf';
-import _ from 'lodash';
-import {createHash} from 'crypto'
-import { SecurityHubClient, BatchImportFindingsCommand, AwsSecurityFinding } from "@aws-sdk/client-securityhub";
-import {createLogger, transports, format} from 'winston'
+import * as fs from "fs";
+import { HDF } from "./types/hdf";
+import _ from "lodash";
+import { createHash } from "crypto";
+import {convertFile, contextualizeEvaluation} from 'inspecjs'
+import {
+  SecurityHubClient,
+  BatchImportFindingsCommand,
+  AwsSecurityFinding
+} from "@aws-sdk/client-securityhub";
+import { createLogger, transports, format } from "winston";
+import {
+  createDescription,
+  getRunTime,
+  sliceIntoChunks,
+  cleanText,
+  getAllLayers,
+  createCode,
+  createNote,
+  statusCount
+} from "./helpers";
 
 const logger = createLogger({
     transports: [new transports.Console({
@@ -36,8 +51,8 @@ program
   .requiredOption('-a, --aws-account-id <accountid>', 'AWS Account ID')
   .requiredOption('-r, --region <region>', 'AWS Account Region')
   .requiredOption('-t, --target <target>', 'Name of targeted host (re-use target to preserve findings across time)')
-  .option('-a, --access-key <accessKeyId>')
-  .option('-a, --access-key-secret <accessKeySecret>')
+  .option('-a, --access-key <accessKeyId>', 'AWS IAM Access Key')
+  .option('-a, --access-key-secret <accessKeySecret>', 'AWS IAM Access Key Secret')
   .option('-o, --output <outfile>', 'Output ASFF Findings JSON')
   .option('-u, --upload', 'Automattically upload findings to Security Hub (AWS CLI must be configured or secrets must be passed)');
 
@@ -56,61 +71,14 @@ const impactMapping: Map<number, string> = new Map([
     [0.0, 'INFORMATIONAL']
 ]);
 
-function sliceIntoChunks(arr: AwsSecurityFinding[], chunkSize: number): AwsSecurityFinding[][] {
-    const res = [];
-    for (let i = 0; i < arr.length; i += chunkSize) {
-        const chunk = arr.slice(i, i + chunkSize);
-        res.push(chunk);
-    }
-    return res;
-}
+const inspecJSJson = convertFile(JSON.stringify(hdf))
+const profiles = contextualizeEvaluation(inspecJSJson['1_0_ExecJson'] as any)
+const counts = statusCount(profiles)
 
-// Gets rid of extra spacing + newlines as these aren't shown in Security Hub
-function cleanText(text?: string): string | undefined {
-    if (text){
-        return text.replace(/  +/g, ' ').replace(/\r?\n|\r/g, ' ')
-    } else {
-        return undefined
-    }
-}
-
-function getAllLayers(knownControl: Control): (Control & {profileName?: string})[] {
-    if(hdf.profiles.length == 1){
-        return [{...knownControl, profileName: hdf.profiles[0].name}]
-    } else {
-        const foundControls: (Control & {profileName?: string})[] = [];
-        // For each control in each profile
-        hdf.profiles.forEach((profile) => {
-            profile.controls.forEach((control) => {
-                if(control.id === knownControl.id) {
-                    foundControls.push({...control, profileName: profile.name})
-                }
-            })
-        })
-        return foundControls
-    }
-}
-
-function createCode(control: Control & {profileName?: string}) {
-    return `=========================================================\n# Profile name: ${control.profileName}\n=========================================================\n\n${control.code}`
-}
-
-function createNote(segment: Result) {
-    if(segment.message) {
-        return `Test Description: ${segment.code_desc} --- Test Result: ${segment.message}`
-    } else if (segment.skip_message) {
-        return `Test Description: ${segment.code_desc} --- Skip Message: ${segment.skip_message}`
-    } else {
-        return `Test Description: ${segment.code_desc}`
-    }
-    
-}
-
-
-
+// Add results from all profiles
 hdf.profiles.forEach((profile) => {
     profile.controls.forEach(async (control) => {
-        const layersOfControl = getAllLayers(control)
+        const layersOfControl = getAllLayers(hdf, control)
         control.results.forEach((segment) => {
             // If we passed or failed the subcontrol
             const controlStatus = segment.status == 'skipped' ? 'WARNING' : (segment.status == 'passed' ? 'PASSED' : 'FAILED')
@@ -209,6 +177,57 @@ hdf.profiles.forEach((profile) => {
         })
     })
 })
+
+// Add a finding that gives information on the results set
+const profileInfo: AwsSecurityFinding = {
+    SchemaVersion: "2018-10-08",
+    Id: `${target}/${hdf.profiles[0].name}`,
+    ProductArn: `arn:aws:securityhub:${options.region}:${options.awsAccountId}:product/${options.awsAccountId}/default`,
+    GeneratorId: `arn:aws:securityhub:us-east-2:${options.awsAccountId}:ruleset/set/${hdf.profiles[0].name}`,
+    AwsAccountId: options.awsAccountId,
+    CreatedAt: getRunTime(hdf).toISOString(),
+    UpdatedAt: new Date().toISOString(),
+    Title: `${target} | ${hdf.profiles[0].name} | ${getRunTime(hdf).toTimeString()}`, 
+    Description: createDescription(counts),
+    Severity: {
+        Label: 'INFORMATIONAL'
+    },
+    FindingProviderFields: {
+        Severity: {
+            Label: 'INFORMATIONAL',
+        },
+        Types: []
+    },
+    Resources: [
+        {
+            Type: "AwsAccount",
+            Id: `AWS::::Account:${options.awsAccountId}`,
+            Partition: "aws",
+            Region: options.region
+        }
+    ]
+}
+
+hdf.profiles.forEach((profile) => {
+    const targets = ['version', 'sha256', 'maintainer', 'summary', 'license', 'copyright', 'copyright_email']
+    targets.forEach((target) => {
+        const value = _.get(profile, target)
+        if(typeof value === 'string') {
+            profileInfo.FindingProviderFields?.Types?.push(`${profile.name}/${target}/${value}`)
+        }
+    })
+
+    profile.attributes.forEach((input) => {
+        if(typeof input.options.value === 'object') {
+            profileInfo.FindingProviderFields?.Types?.push(`${profile.name} inputs/${input.name}/${JSON.stringify(input.options.value).replace(/\//g, '∕')}`)
+        } else if(typeof input.options.value === 'string' && input.options.value) {
+            profileInfo.FindingProviderFields?.Types?.push(`${profile.name} inputs/${input.name}/${input.options.value.replace(/\//g, '∕')}`)
+        }
+    })
+})
+profileInfo.FindingProviderFields!.Types = profileInfo.FindingProviderFields?.Types?.slice(0, 50)
+
+findings.push(profileInfo)
 
 // Upload/export the converted controls
 try {
