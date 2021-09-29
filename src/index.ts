@@ -48,11 +48,11 @@ const program = new Command();
 program.version('1.0.0')
 program
   .requiredOption('-i, --input <infile>', 'Input HDF/InSpec JSON')
-  .requiredOption('-I, --aws-account-id <accountid>', 'AWS Account ID')
+  .requiredOption('-a, --aws-account-id <accountid>', 'AWS Account ID')
   .requiredOption('-r, --region <region>', 'AWS Account Region')
   .requiredOption('-t, --target <target>', 'Name of targeted host (re-use target to preserve findings across time)')
   .option('-a, --access-key <accessKeyId>', 'AWS IAM Access Key')
-  .option('-A, --access-key-secret <accessKeySecret>', 'AWS IAM Access Key Secret')
+  .option('-a, --access-key-secret <accessKeySecret>', 'AWS IAM Access Key Secret')
   .option('-o, --output <outfile>', 'Output ASFF Findings JSON')
   .option('-u, --upload', 'Automattically upload findings to Security Hub (AWS CLI must be configured or secrets must be passed)');
 
@@ -233,7 +233,7 @@ findings.push(profileInfo)
 // Upload/export the converted controls
 try {
     if(options.upload){
-        let client = new SecurityHubClient({region: options.region, credentials: {accessKeyId: options.accessKeyId, secretAccessKey: options.accessKeySecret}});
+        let client = new SecurityHubClient({region: options.region});
         if(options.accessKeyId && options.accessKeySecret) {
             client = new SecurityHubClient({region: options.region, credentials: {accessKeyId: options.accessKeyId, secretAccessKey: options.accessKeySecret}});
         }
