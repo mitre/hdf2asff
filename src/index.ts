@@ -75,11 +75,22 @@ const inspecJSJson = convertFile(JSON.stringify(hdf))
 const profiles = contextualizeEvaluation(inspecJSJson['1_0_ExecJson'] as any)
 const counts = statusCount(profiles)
 
+function sleep(milliseconds: number) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+      if ((new Date().getTime() - start) > milliseconds){
+        break;
+      }
+    }
+  }
+
 // Add results from all profiles
 hdf.profiles.forEach((profile) => {
-    profile.controls.forEach(async (control) => {
+    profile.controls.reverse().forEach((control) => {
         const layersOfControl = getAllLayers(hdf, control)
         control.results.forEach((segment) => {
+            // Ensure that the UpdatedAt time is different accross findings (to match the order in HDF)
+            sleep(1)
             // If we passed or failed the subcontrol
             const controlStatus = segment.status == 'skipped' ? 'WARNING' : (segment.status == 'passed' ? 'PASSED' : 'FAILED')
             // Checktext can either be a description or a tag
@@ -179,6 +190,7 @@ hdf.profiles.forEach((profile) => {
     })
 })
 
+const runTime = getRunTime(hdf)
 // Add a finding that gives information on the results set
 const profileInfo: AwsSecurityFinding = {
     SchemaVersion: "2018-10-08",
@@ -186,9 +198,9 @@ const profileInfo: AwsSecurityFinding = {
     ProductArn: `arn:aws:securityhub:${options.region}:${options.awsAccountId}:product/${options.awsAccountId}/default`,
     GeneratorId: `arn:aws:securityhub:us-east-2:${options.awsAccountId}:ruleset/set/${hdf.profiles[0].name}`,
     AwsAccountId: options.awsAccountId,
-    CreatedAt: getRunTime(hdf).toISOString(),
+    CreatedAt: runTime.toISOString(),
     UpdatedAt: new Date().toISOString(),
-    Title: `${target} | ${hdf.profiles[0].name} | ${getRunTime(hdf).toTimeString()}`, 
+    Title: `${target} | ${hdf.profiles[0].name} | ${runTime.toDateString()} ${runTime.toTimeString()}`, 
     Description: createDescription(counts),
     Severity: {
         Label: 'INFORMATIONAL'
@@ -208,6 +220,7 @@ const profileInfo: AwsSecurityFinding = {
         }
     ]
 }
+const profileInfoFindings: AwsSecurityFinding[] = []
 
 hdf.profiles.forEach((profile) => {
     const targets = ['version', 'sha256', 'maintainer', 'summary', 'license', 'copyright', 'copyright_email']
@@ -228,7 +241,7 @@ hdf.profiles.forEach((profile) => {
 })
 profileInfo.FindingProviderFields!.Types = profileInfo.FindingProviderFields?.Types?.slice(0, 50)
 
-findings.push(profileInfo)
+profileInfoFindings.push(profileInfo)
 
 // Upload/export the converted controls
 try {
@@ -238,14 +251,22 @@ try {
             client = new SecurityHubClient({region: options.region, credentials: {accessKeyId: options.accessKeyId, secretAccessKey: options.accessKeySecret}});
         }
         logger.info(`Attempting to upload ${findings.length} findings to Security Hub`)
-        sliceIntoChunks(findings, 100).forEach(async (chunk) => {
+        Promise.all(sliceIntoChunks(findings, 100).map(async (chunk) => {
             const uploadCommand = new BatchImportFindingsCommand({Findings: chunk})
             try {
-                const result = await client.send(uploadCommand);
+                const result = await client.send(uploadCommand)
                 logger.info(`Uploaded ${chunk.length} controls. Success: ${result.SuccessCount}, Fail: ${result.FailedCount}`)
             } catch (err) {
                 logger.error(`Failed to upload controls: ${err}`)
             }
+        })).then(() => {
+            profileInfoFindings.forEach(async (finding) => {
+                finding.UpdatedAt = new Date().toISOString()
+                const profileInfoUploadCommand = new BatchImportFindingsCommand({Findings: [finding]})
+                const result = await client.send(profileInfoUploadCommand)
+                logger.info(`Statistics: ${finding.Description}`)
+                logger.info(`Uploaded Results Set Info Control(s) - Success: ${result.SuccessCount}, Fail: ${result.FailedCount}`)
+            })
         })
     }
     if (options.output) {
