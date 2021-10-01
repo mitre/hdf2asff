@@ -20,6 +20,7 @@ import {
   createNote,
   statusCount,
 } from "./helpers";
+import moment from 'moment';
 
 const logger = createLogger({
   transports: [
@@ -224,6 +225,24 @@ hdf.profiles.forEach((profile) => {
             ),
           })
       }
+      const targets = [
+        "code_desc",
+        "exception",
+        "message",
+        "resource",
+        "run_time",
+        "start_time",
+        "skip_message",
+        "status"
+      ];
+      targets.forEach((target) => {
+        const value = _.get(segment, target);
+        if (typeof value === "string" && value) {
+          asffControl.FindingProviderFields?.Types?.push(
+            `Segment/${target}/${value.replace(/\//g, '')}`
+          );
+        }
+      });
       for (const tag in layersOfControl[0].tags) {
         if (layersOfControl[0].tags[tag]) {
           if (tag === "nist" && Array.isArray(layersOfControl[0].tags.nist)) {
@@ -291,7 +310,7 @@ const profileInfo: AwsSecurityFinding = {
   UpdatedAt: new Date().toISOString(),
   Title: `${target} | ${
     hdf.profiles[0].name
-  } | ${runTime.toDateString()} ${runTime.toTimeString()}`,
+  } | ${moment().format('YYYY-MM-DD hh:mm:ss [GMT]ZZ')}`,
   Description: createDescription(counts),
   Severity: {
     Label: "INFORMATIONAL",
