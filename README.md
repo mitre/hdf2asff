@@ -31,13 +31,13 @@ This tool converts and uploads Heimdall Data Format (HDF) into Amazon Security F
 1. Open CMD/Powershell/Terminal and enter the directory of hdf2ASFF
    - Windows Shortcut: Shift + Right Click inside folder
    - Mac Shortcut: Right-Click hdf2ASFF folder from parent directory -> Services -> New Terminal at Folder
-2. Start the program with `npm start`. Some examples:
+2. Start the program with `npm start -- `. Some examples:
    - To convert and upload controls using credentials setup in the AWS CLI:
    
-     - `npm start --input <path/to/input.json> --aws-account-id <AWS Account ID> --region <Security Hub Region> --target <Target Name> --upload`
+     - `npm start -- --input <path/to/input.json> --aws-account-id <AWS Account ID> --region <Security Hub Region> --target <Target Name> --upload`
    - To convert and upload controls using specific credentials:
    
-     - `npm start --input <path/to/input.json> --aws-account-id <AWS Account ID> --access-key <AWS IAM Access Key> --access-key-secret <AWS IAM Access Key Secret> --region <Security Hub Region> --target <Target Name> --upload`
+     - `npm start -- --input <path/to/input.json> --aws-account-id <AWS Account ID> --access-key <AWS IAM Access Key> --access-key-secret <AWS IAM Access Key Secret> --region <Security Hub Region> --target <Target Name> --upload`
 
 ---
 
@@ -45,12 +45,14 @@ This tool converts and uploads Heimdall Data Format (HDF) into Amazon Security F
 
 ## Usage
 
-```Usage: index [options]
-  -V, --version                              output the version number
-  -i, --input <infile>                       Input HDF/InSpec JSON
-  -a, --aws-account-id <accountid>           AWS Account ID
-  -r, --region <region>                      AWS Account Region
-  -t, --target <target>                      Name of targeted host (re-use target to preserve findings across time)
-  -o, --output <outfile>                     Output ASFF Findings JSON
-  -u, --upload                               Automattically upload findings to Security Hub (AWS CLI must be configured or secrets must be passed)
-  -h, --help                                 display help for command
+```
+Usage:
+  -V, --version                     output the version number
+  -i, --input <infile>              Input HDF/InSpec JSON
+  -a, --aws-account-id <accountid>  AWS Account ID
+  -r, --region <region>             AWS Account Region
+  -t, --target <target>             Name of targeted host (re-use target to preserve findings across time)
+  -o, --output <outfile>            Output ASFF Findings JSON
+  -u, --upload                      Automattically upload findings to Security Hub (AWS CLI must be configured or secrets must be passed)
+  -h, --help                        display help for command
+```
