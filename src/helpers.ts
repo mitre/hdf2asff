@@ -1,6 +1,4 @@
-import {
-  AwsSecurityFinding,
-} from "@aws-sdk/client-securityhub";
+import { AwsSecurityFinding } from "@aws-sdk/client-securityhub";
 import { Control, HDF, Result } from "./types/hdf";
 import _ from "lodash";
 import { ContextualizedControl, ContextualizedEvaluation } from "inspecjs";
@@ -13,10 +11,10 @@ type Counts = {
   PassingTestsFailedControl: number;
   NotApplicable: number;
   NotReviewed: number;
-}
+};
 
 export function getRunTime(hdf: HDF): Date {
-  let time = new Date()
+  let time = new Date();
   hdf.profiles.forEach((profile) => {
     if (
       profile.controls[0].results.length &&
@@ -26,12 +24,6 @@ export function getRunTime(hdf: HDF): Date {
     }
   });
   return time;
-}
-
-function hasCaveat(control: Control) {
-  return control.descriptions?.some(
-    (description) => description.label === "caveat"
-  );
 }
 
 /** Trivial overlay filter that just takes the version of the control that has results from amongst all identical ids */
@@ -61,11 +53,9 @@ function filter_overlays(
 
 export function statusCount(evaluation: ContextualizedEvaluation): Counts {
   let controls: ContextualizedControl[] = [];
-    // Get all controls
-    evaluation.contains.forEach((p) =>
-      controls.push(...p.contains)
-  );
-  controls = filter_overlays(controls)
+  // Get all controls
+  evaluation.contains.forEach((p) => controls.push(...p.contains));
+  controls = filter_overlays(controls);
   const statusCounts: Counts = {
     Passed: 0,
     PassedTests: 0,
@@ -78,14 +68,14 @@ export function statusCount(evaluation: ContextualizedEvaluation): Counts {
   controls.forEach((control) => {
     if (control.hdf.status === "Passed") {
       statusCounts.Passed += 1;
-      statusCounts.PassedTests += (control.hdf.segments || []).length
+      statusCounts.PassedTests += (control.hdf.segments || []).length;
     } else if (control.hdf.status === "Failed") {
-      statusCounts.PassingTestsFailedControl += (control.hdf.segments || []).filter(
-        (s) => s.status === 'passed'
-      ).length
+      statusCounts.PassingTestsFailedControl += (
+        control.hdf.segments || []
+      ).filter((s) => s.status === "passed").length;
       statusCounts.FailedTests += (control.hdf.segments || []).filter(
-        (s) => s.status === 'failed'
-      ).length
+        (s) => s.status === "failed"
+      ).length;
       statusCounts.Failed += 1;
     } else if (control.hdf.status === "Not Applicable") {
       statusCounts.NotApplicable += 1;
@@ -97,7 +87,17 @@ export function statusCount(evaluation: ContextualizedEvaluation): Counts {
 }
 
 export function createDescription(counts: Counts): string {
-  return `Passed: ${counts.Passed} (${counts.PassedTests} individual checks passed) --- Failed: ${counts.Failed} (${counts.PassingTestsFailedControl} individual checks failed out of ${counts.PassingTestsFailedControl + counts.FailedTests} total checks) --- Not Applicable: ${counts.NotApplicable} (System exception or absent component) --- Not Reviewed: ${counts.NotReviewed} (Can only be tested manually at this time)`
+  return `Passed: ${counts.Passed} (${
+    counts.PassedTests
+  } individual checks passed) --- Failed: ${counts.Failed} (${
+    counts.PassingTestsFailedControl
+  } individual checks failed out of ${
+    counts.PassingTestsFailedControl + counts.FailedTests
+  } total checks) --- Not Applicable: ${
+    counts.NotApplicable
+  } (System exception or absent component) --- Not Reviewed: ${
+    counts.NotReviewed
+  } (Can only be tested manually at this time)`;
 }
 
 // Slices an array into chunks, since AWS doens't allow uploading more than 100 findings at a time
