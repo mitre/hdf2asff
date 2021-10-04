@@ -100,6 +100,12 @@ export function createDescription(counts: Counts): string {
   } (Can only be tested manually at this time)`;
 }
 
+export function createAssumeRolePolicyDocument(layersOfControl: (Control & { profileName?: string })[], segment: Result): string {
+  const segmentOverview = createNote(segment)
+  const code = layersOfControl.map((layer) => createCode(layer)).join("\n\n")
+  return `${segmentOverview}\n\n${code}`
+}
+
 // Slices an array into chunks, since AWS doens't allow uploading more than 100 findings at a time
 export function sliceIntoChunks(
   arr: AwsSecurityFinding[],

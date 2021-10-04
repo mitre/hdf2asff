@@ -19,6 +19,7 @@ import {
   createCode,
   createNote,
   statusCount,
+  createAssumeRolePolicyDocument,
 } from "./helpers";
 import moment from 'moment';
 
@@ -179,7 +180,7 @@ hdf.profiles.forEach((profile) => {
                     }
                   ).data
               ),
-              { length: 512, omission: '' }
+              { length: 512, omission: '... [SEE FULL TEXT IN AssumeRolePolicyDocument]' }
             ),
           },
         },
@@ -203,9 +204,7 @@ hdf.profiles.forEach((profile) => {
             Type: "AwsIamRole",
             Details: {
               AwsIamRole: {
-                AssumeRolePolicyDocument: layersOfControl
-                  .map((layer) => createCode(layer))
-                  .join("\n\n"),
+                AssumeRolePolicyDocument: createAssumeRolePolicyDocument(layersOfControl, segment)
               },
             },
           },
