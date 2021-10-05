@@ -144,7 +144,7 @@ hdf.profiles.forEach((profile) => {
         ),
         Description: _.truncate(
           cleanText(`${layersOfControl[0].desc} -- Check Text: ${checktext}`),
-          { length: 1024 }
+          { length: 1024, omission: '[SEE FULL TEXT IN AssumeRolePolicyDocument]' }
         ),
         FindingProviderFields: {
           Severity: {

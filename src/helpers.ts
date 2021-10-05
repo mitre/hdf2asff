@@ -103,7 +103,7 @@ export function createDescription(counts: Counts): string {
 export function createAssumeRolePolicyDocument(layersOfControl: (Control & { profileName?: string })[], segment: Result): string {
   const segmentOverview = createNote(segment)
   const code = layersOfControl.map((layer) => createCode(layer)).join("\n\n")
-  return `${segmentOverview}\n\n${code}`
+  return `${code}\n\n${segmentOverview}`
 }
 
 // Slices an array into chunks, since AWS doens't allow uploading more than 100 findings at a time
