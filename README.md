@@ -39,7 +39,7 @@ This tool converts and uploads Heimdall Data Format (HDF) into Amazon Security F
  - If control information is cut off, it can be found inside of 'Finding Provider Fields' or by opening the JSON of the finding by clicking the ID.
  - Holding your mouse over a Finding Provider Field will show it with newlines and propper formatting for some browsers.
  - Use "Workflow Status" to mark findings as New/Notified/Suppressed/Resolved.
- - Uploading a results set with the same **controls** and same **target** (-t) will update findings across time.
+ - Uploading a results set with the same **tests** and same **target** (-t) will update findings across time.
 
 
 
