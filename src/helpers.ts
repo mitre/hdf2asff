@@ -161,5 +161,5 @@ export function createNote(segment: Result) {
 }
 
 export function createCode(control: Control & { profileInfo?: Record<string, unknown> }) {
-  return `=========================================================\n# Profile name: ${control.profileInfo?.name}\n=========================================================\n\n${control.code.replace(/\\\"/g, "")}`;
+  return `=========================================================\n# Profile name: ${control.profileInfo?.name}\n=========================================================\n\n${control.code.replace(/\\\"/g, "\"")}`;
 }
