@@ -154,15 +154,6 @@ hdf.profiles.forEach((profile) => {
               impactMapping.get(layersOfControl[0].impact) || "INFORMATIONAL",
           },
           Types: [
-            `Profile/Name/${profile.name}`,
-            `Profile/Version/${profile.version}`,
-            `Profile/SHA256/${profile.sha256}`,
-            `Profile/Title/${profile.title}`,
-            `Profile/Maintainer/${profile.maintainer}`,
-            `Profile/Summary/${profile.summary}`,
-            `Profile/License/${profile.license}`,
-            `Profile/Copyright/${profile.copyright}`,
-            `Profile/Copyright Email/${profile.copyright_email}`,
             `File/Input/${filename}`,
             `Control/Code/${control.code.replace(/\//g, "∕")}`,
           ],
@@ -224,7 +215,20 @@ hdf.profiles.forEach((profile) => {
             ),
           })
       }
-      const targets = [
+      // Add all layers of profile info to the Finding Provider Fields
+      let targets = ['name', 'version', 'sha256', 'title', 'maintainer', 'summary', 'license', 'copyright', 'copyright_email']
+      layersOfControl.forEach((layer) => {
+        const profileInfos: Record<string, string>[] = []
+        targets.forEach((target) => {
+          const value = _.get(layer.profileInfo, target);
+          if (typeof value === "string" && value) {
+            profileInfos.push({[target]: value})
+          }
+        });
+        asffControl.FindingProviderFields?.Types?.push(`Profile/Info/${JSON.stringify(profileInfos).replace(/\//g, '∕')}`);
+      })
+      // Add segment/result information to Finding Provider Fields
+      targets = [
         "code_desc",
         "exception",
         "message",
@@ -242,6 +246,7 @@ hdf.profiles.forEach((profile) => {
           );
         }
       });
+      // Add Tags to Finding Provider Fields
       for (const tag in layersOfControl[0].tags) {
         if (layersOfControl[0].tags[tag]) {
           if (tag === "nist" && Array.isArray(layersOfControl[0].tags.nist)) {
@@ -275,6 +280,7 @@ hdf.profiles.forEach((profile) => {
           }
         }
       }
+      // Add Descriptions to FindingProviderFields
       layersOfControl[0].descriptions?.forEach((description) => {
         if (description.data) {
           asffControl.FindingProviderFields?.Types?.push(

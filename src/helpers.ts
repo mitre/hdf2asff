@@ -132,16 +132,16 @@ export function cleanText(text?: string): string | undefined {
 export function getAllLayers(
   hdf: HDF,
   knownControl: Control
-): (Control & { profileName?: string })[] {
+): (Control & { profileInfo?: Record<string, unknown> })[] {
   if (hdf.profiles.length == 1) {
-    return [{ ...knownControl, profileName: hdf.profiles[0].name }];
+    return [{ ...knownControl, ..._.omit(hdf.profiles, 'controls')}];
   } else {
-    const foundControls: (Control & { profileName?: string })[] = [];
+    const foundControls: (Control & { profileInfo?: Record<string, unknown> })[] = [];
     // For each control in each profile
     hdf.profiles.forEach((profile) => {
       profile.controls.forEach((control) => {
         if (control.id === knownControl.id) {
-          foundControls.push({ ...control, profileName: profile.name });
+          foundControls.push({ ...control, profileInfo: _.omit(profile, 'controls') });
         }
       });
     });
