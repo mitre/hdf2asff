@@ -155,7 +155,7 @@ hdf.profiles.forEach((profile) => {
           },
           Types: [
             `File/Input/${filename}`,
-            `Control/Code/${control.code.replace(/\//g, "∕")}`,
+            `Control/Code/${unescape(control.code).replace(/\//g, "∕")}`,
           ],
         },
         Remediation: {
@@ -262,20 +262,20 @@ hdf.profiles.forEach((profile) => {
             );
           } else if (typeof layersOfControl[0].tags[tag] === "string") {
             asffControl.FindingProviderFields?.Types?.push(
-              `Tags/${tag.replace(/\W/g, "")}/${(
+              `Tags/${tag.replace(/\//g, "∕")}/${(
                 layersOfControl[0].tags[tag] as string
-              ).replace(/\W/g, "")}`
+              ).replace(/\//g, "∕")}`
             );
           } else if (
             typeof layersOfControl[0].tags[tag] === "object" &&
             Array.isArray(layersOfControl[0].tags[tag])
           ) {
             asffControl.FindingProviderFields?.Types?.push(
-              `Tags/${tag.replace(/\W/g, "")}/${(
+              `Tags/${tag.replace(/\//g, "∕")}/${(
                 layersOfControl[0].tags[tag] as Array<string>
               )
                 .join(", ")
-                .replace(/\W/g, "")}`
+                .replace(/\//g, "∕")}`
             );
           }
         }
@@ -284,9 +284,9 @@ hdf.profiles.forEach((profile) => {
       layersOfControl[0].descriptions?.forEach((description) => {
         if (description.data) {
           asffControl.FindingProviderFields?.Types?.push(
-            `Descriptions/${description.label.replace(/\W/g, "")}/${cleanText(
-              description.data.replace(/\//, "∕")
-            )?.replace(/[^0-9a-z ]/gi, "")}`
+            `Descriptions/${description.label.replace(/\//g, "∕")}/${cleanText(
+              description.data
+            )?.replace(/\//g, "∕")}`
           );
         }
       });
