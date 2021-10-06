@@ -161,5 +161,5 @@ export function createNote(segment: Result) {
 }
 
 export function createCode(control: Control & { profileName?: string }) {
-  return `=========================================================\n# Profile name: ${control.profileName}\n=========================================================\n\n${control.code}`;
+  return `=========================================================\n# Profile name: ${control.profileName}\n=========================================================\n\n${unescape(control.code)}`;
 }
