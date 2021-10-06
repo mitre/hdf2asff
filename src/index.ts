@@ -164,7 +164,7 @@ hdf.profiles.forEach((profile) => {
             `Profile/Copyright/${profile.copyright}`,
             `Profile/Copyright Email/${profile.copyright_email}`,
             `File/Input/${filename}`,
-            `Control/Code/${control.code.replace(/\//g, "")}`,
+            `Control/Code/${control.code.replace(/\//g, "∕")}`,
           ],
         },
         Remediation: {
@@ -238,7 +238,7 @@ hdf.profiles.forEach((profile) => {
         const value = _.get(segment, target);
         if (typeof value === "string" && value) {
           asffControl.FindingProviderFields?.Types?.push(
-            `Segment/${target}/${value.replace(/\//g, '')}`
+            `Segment/${target}/${value.replace(/\//g, '∕')}`
           );
         }
       });
@@ -279,7 +279,7 @@ hdf.profiles.forEach((profile) => {
         if (description.data) {
           asffControl.FindingProviderFields?.Types?.push(
             `Descriptions/${description.label.replace(/\W/g, "")}/${cleanText(
-              description.data.replace(/\//, " or ")
+              description.data.replace(/\//, "∕")
             )?.replace(/[^0-9a-z ]/gi, "")}`
           );
         }
