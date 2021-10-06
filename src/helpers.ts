@@ -100,7 +100,7 @@ export function createDescription(counts: Counts): string {
   } (Can only be tested manually at this time)`;
 }
 
-export function createAssumeRolePolicyDocument(layersOfControl: (Control & { profileName?: string })[], segment: Result): string {
+export function createAssumeRolePolicyDocument(layersOfControl: (Control & { profileInfo?: Record<string, unknown> })[], segment: Result): string {
   const segmentOverview = createNote(segment)
   const code = layersOfControl.map((layer) => createCode(layer)).join("\n\n")
   return `${code}\n\n${segmentOverview}`
@@ -160,6 +160,6 @@ export function createNote(segment: Result) {
   }
 }
 
-export function createCode(control: Control & { profileName?: string }) {
-  return `=========================================================\n# Profile name: ${control.profileName}\n=========================================================\n\n${control.code}`;
+export function createCode(control: Control & { profileInfo?: Record<string, unknown> }) {
+  return `=========================================================\n# Profile name: ${control.profileInfo?.name}\n=========================================================\n\n${control.code.replace(/\\\"/, "")}`;
 }

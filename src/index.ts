@@ -155,7 +155,7 @@ hdf.profiles.forEach((profile) => {
           },
           Types: [
             `File/Input/${filename}`,
-            `Control/Code/${unescape(control.code).replace(/\//g, "∕")}`,
+            `Control/Code/${layersOfControl.map((layer) => createCode(layer)).join("\n\n").replace(/\//g, "∕")}`,
           ],
         },
         Remediation: {
