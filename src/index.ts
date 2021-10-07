@@ -203,18 +203,8 @@ hdf.profiles.forEach((profile) => {
         Compliance: {
           RelatedRequirements: ["SEE REMEDIATION FIELD FOR RESULTS AND RECOMMENDED ACTION(S)"],
           Status: controlStatus,
-          StatusReasons: []
         },
       };
-      if(segment.message) {
-          asffControl.Compliance?.StatusReasons?.push({
-            ReasonCode: "CONFIG_EVALUATIONS_EMPTY",
-            Description: _.truncate(
-              cleanText(segment.message) || "Unavailable",
-              { length: 2048, omission: '' }
-            ),
-          })
-      }
       // Add all layers of profile info to the Finding Provider Fields
       let targets = ['name', 'version', 'sha256', 'title', 'maintainer', 'summary', 'license', 'copyright', 'copyright_email']
       layersOfControl.forEach((layer) => {
