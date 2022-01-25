@@ -15,14 +15,13 @@ type Counts = {
 
 export function getRunTime(hdf: HDF): Date {
   let time = new Date();
-  hdf.profiles.forEach((profile) => {
-    if (
-      profile.controls[0].results.length &&
-      profile.controls[0].results[0].start_time
-    ) {
-      time = new Date(profile.controls[0].results[0].start_time);
-    }
-  });
+  
+  if (
+    hdf.profiles[0].controls[0].results.length &&
+    hdf.profiles[0].controls[0].results[0].start_time
+  ) {
+    time = new Date(hdf.profiles[0].controls[0].results[0].start_time);
+  }
   return time;
 }
 
